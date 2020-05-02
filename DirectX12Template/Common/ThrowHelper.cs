@@ -29,6 +29,7 @@ namespace DirectX12Template.Common
 
         #endregion
 
+
         // TODO
     }
 }

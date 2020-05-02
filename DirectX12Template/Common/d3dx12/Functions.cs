@@ -237,10 +237,9 @@ namespace DirectX12Template.Common.d3dx12
             ulong* pRowSizesInBytes = (ulong*)(pLayouts + NumSubresources);
             uint* pNumRows = (uint*)(pRowSizesInBytes + NumSubresources);
 
-            D3D12_RESOURCE_DESC Desc;
-            pDestinationResource->GetDesc(&Desc);
+            D3D12_RESOURCE_DESC Desc = pDestinationResource->GetDesc();
             ID3D12Device* pDevice;
-            var iid = D3D12.IID_ID3D12Device;
+            Guid iid = D3D12.IID_ID3D12Device;
             pDestinationResource->GetDevice(&iid, (void**)(&pDevice));
             pDevice->GetCopyableFootprints(&Desc, FirstSubresource, NumSubresources, IntermediateOffset, pLayouts, pNumRows, pRowSizesInBytes, &RequiredSize);
             pDevice->Release();
@@ -253,10 +252,9 @@ namespace DirectX12Template.Common.d3dx12
         public static ulong UpdateSubresources(ID3D12GraphicsCommandList* pCmdList, ID3D12Resource* pDestinationResource, ID3D12Resource* pIntermediate, uint FirstSubresource, uint NumSubresources, ulong RequiredSize, D3D12_PLACED_SUBRESOURCE_FOOTPRINT* pLayouts, uint* pNumRows, ulong* pRowSizesInBytes, D3D12_SUBRESOURCE_DATA* pSrcData)
         {
             // Minor validation
-            D3D12_RESOURCE_DESC IntermediateDesc;
-            pIntermediate->GetDesc(&IntermediateDesc);
-            D3D12_RESOURCE_DESC DestinationDesc;
-            pDestinationResource->GetDesc(&DestinationDesc);
+            D3D12_RESOURCE_DESC IntermediateDesc = pIntermediate->GetDesc();
+            D3D12_RESOURCE_DESC DestinationDesc = pDestinationResource->GetDesc();
+
             if (IntermediateDesc.Dimension != D3D12_RESOURCE_DIMENSION.D3D12_RESOURCE_DIMENSION_BUFFER ||
                 IntermediateDesc.Width < RequiredSize + pLayouts[0].Offset ||
                 RequiredSize > ((IntPtr.Size == 4) ? uint.MaxValue : ulong.MaxValue) ||

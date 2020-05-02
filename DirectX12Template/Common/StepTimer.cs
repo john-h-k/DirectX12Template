@@ -105,7 +105,7 @@ namespace DirectX12Template.Common
                 _framesThisSecond++;
             }
 
-            if (_qpcSecondCounter >= (ulong) _qpcFrequency.QuadPart)
+            if (_qpcSecondCounter >= (ulong)_qpcFrequency.QuadPart)
             {
                 _framesPerSecond = _framesThisSecond;
                 _framesThisSecond = 0;
@@ -113,19 +113,25 @@ namespace DirectX12Template.Common
             }
         }
 
-        private static void TryQueryPerformanceCounter(out LARGE_INTEGER lpPerformanceCounter)
+        private static unsafe void TryQueryPerformanceCounter(out LARGE_INTEGER lpPerformanceCounter)
         {
-            if (Kernel32.QueryPerformanceCounter(out lpPerformanceCounter) == TerraFX.Interop.Windows.FALSE)
+            fixed (LARGE_INTEGER* pPerformanceCounter = &lpPerformanceCounter)
             {
-                DirectXHelper.ThrowWin32Exception($"{nameof(Kernel32.QueryPerformanceCounter)} failed");
+                if (Kernel32.QueryPerformanceCounter(pPerformanceCounter) == TerraFX.Interop.Windows.FALSE)
+                {
+                    DirectXHelper.ThrowComException($"{nameof(Kernel32.QueryPerformanceCounter)} failed");
+                }
             }
         }
 
-        private static void TryQueryPerformanceFrequency(out LARGE_INTEGER lpFrequency)
+        private static unsafe void TryQueryPerformanceFrequency(out LARGE_INTEGER lpFrequency)
         {
-            if (Kernel32.QueryPerformanceFrequency(out lpFrequency) == TerraFX.Interop.Windows.FALSE)
+            fixed (LARGE_INTEGER* pFrequency = &lpFrequency)
             {
-                DirectXHelper.ThrowWin32Exception($"{nameof(Kernel32.QueryPerformanceFrequency)} failed");
+                if (Kernel32.QueryPerformanceFrequency(pFrequency) == TerraFX.Interop.Windows.FALSE)
+                {
+                    DirectXHelper.ThrowComException($"{nameof(Kernel32.QueryPerformanceFrequency)} failed");
+                }
             }
         }
 

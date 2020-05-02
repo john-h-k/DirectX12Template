@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using TerraFX.Interop;
 
@@ -24,10 +25,13 @@ namespace DirectX12Template.Common.d3dx12
             {
                 Type = D3D12_RESOURCE_BARRIER_TYPE.D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
                 Flags = flags,
-                Transition =
+                Anonymous =
                 {
-                    pResource = pResource, StateBefore = stateBefore,
-                    StateAfter = stateAfter, Subresource = subresource
+                    Transition =
+                    {
+                        pResource = pResource, StateBefore = stateBefore,
+                        StateAfter = stateAfter, Subresource = subresource
+                    }
                 }
             };
         }
@@ -39,7 +43,7 @@ namespace DirectX12Template.Common.d3dx12
             return new D3D12_RESOURCE_BARRIER
             {
                 Type = D3D12_RESOURCE_BARRIER_TYPE.D3D12_RESOURCE_BARRIER_TYPE_ALIASING,
-                Aliasing = { pResourceBefore = pResourceBefore, pResourceAfter = pResourceAfter}
+                Anonymous = { Aliasing = { pResourceBefore = pResourceBefore, pResourceAfter = pResourceAfter } }
             };
         }
 
@@ -49,7 +53,7 @@ namespace DirectX12Template.Common.d3dx12
             return new D3D12_RESOURCE_BARRIER
             {
                 Type = D3D12_RESOURCE_BARRIER_TYPE.D3D12_RESOURCE_BARRIER_TYPE_UAV,
-                UAV = { pResource = pResource }
+                Anonymous = { UAV = { pResource = pResource } }
             };
         }
     }

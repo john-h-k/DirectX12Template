@@ -19,9 +19,9 @@ namespace DirectX12Template.Common.d3dx12
             DXGI_FORMAT format,
             Vector4 color) //  TODO, original is 'const float color[4]'
         {
-            var obj = new D3D12_CLEAR_VALUE { DepthStencil = default, Format = format };
+            var obj = new D3D12_CLEAR_VALUE { Anonymous = { DepthStencil = default }, Format = format };
 
-            Unsafe.WriteUnaligned(ref Unsafe.As<float, byte>(ref *obj.Color), color);
+            Unsafe.WriteUnaligned(ref Unsafe.As<float, byte>(ref *obj.Anonymous.Color), color);
 
             return obj;
         }
@@ -34,9 +34,8 @@ namespace DirectX12Template.Common.d3dx12
             D3D12_CLEAR_VALUE obj;
 
             obj.Format = format;
-            obj.DepthStencil = default;
-            obj.DepthStencil.Depth = depth;
-            obj.DepthStencil.Stencil = stencil;
+            obj.Anonymous.DepthStencil.Depth = depth;
+            obj.Anonymous.DepthStencil.Stencil = stencil;
 
             return obj;
         }

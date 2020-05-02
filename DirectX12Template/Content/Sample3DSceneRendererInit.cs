@@ -370,8 +370,7 @@ namespace DirectX12Template.Content
             }
 
             D3D12_GPU_VIRTUAL_ADDRESS cbvGpuAddress = _constantBuffer.Ptr->GetGPUVirtualAddress();
-            D3D12_CPU_DESCRIPTOR_HANDLE cbvCpuHandle;
-            _cbvHeap.Ptr->GetCPUDescriptorHandleForHeapStart(&cbvCpuHandle);
+            D3D12_CPU_DESCRIPTOR_HANDLE cbvCpuHandle = _cbvHeap.Ptr->GetCPUDescriptorHandleForHeapStart();
             _cbvDescriptorSize =
                 d3dDevice->GetDescriptorHandleIncrementSize(
                     D3D12_DESCRIPTOR_HEAP_TYPE.D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);

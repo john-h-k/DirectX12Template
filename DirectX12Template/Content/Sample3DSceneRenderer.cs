@@ -211,8 +211,7 @@ namespace DirectX12Template.Content
 
                 _commandList.Ptr->SetDescriptorHeaps(ppHeapsCount, ppHeaps);
 
-                D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
-                _cbvHeap.Ptr->GetGPUDescriptorHandleForHeapStart(&gpuHandle);
+                D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _cbvHeap.Ptr->GetGPUDescriptorHandleForHeapStart();
                 gpuHandle.ptr += _deviceResources.CurrentFrameIndex * _cbvDescriptorSize;
                 _commandList.Ptr->SetGraphicsRootDescriptorTable(0, gpuHandle);
 

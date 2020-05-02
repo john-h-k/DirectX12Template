@@ -7,6 +7,7 @@ using Windows.Graphics.Display;
 using Windows.UI.Core;
 using DirectX12Template.Common.d3dx12;
 using TerraFX.Interop;
+using static TerraFX.Interop.Windows;
 using HRESULT = System.Int32;
 
 namespace DirectX12Template.Common
@@ -238,7 +239,7 @@ namespace DirectX12Template.Common
                 using ComPtr<ID3D12Debug> debugController = null;
 
                 iid = D3D12.IID_ID3D12Debug;
-                if (TerraFX.Interop.Windows.SUCCEEDED(D3D12.D3D12GetDebugInterface(&iid, (void**)debugController.GetAddressOf())))
+                if (SUCCEEDED(D3D12.D3D12GetDebugInterface(&iid, (void**)debugController.GetAddressOf())))
                 {
                     debugController.Ptr->EnableDebugLayer();
                 }
@@ -264,7 +265,7 @@ namespace DirectX12Template.Common
                );
 
 #if DEBUG
-                if (TerraFX.Interop.Windows.FAILED(hr))
+                if (FAILED(hr))
                 {
                     using ComPtr<IDXGIAdapter> warpAdapter = null;
 
@@ -357,7 +358,7 @@ namespace DirectX12Template.Common
             _fence = fence;
             DirectXHelper.NameObject(_fence, nameof(_fence));
 
-            _fenceEvent = Kernel32.CreateEvent(null, TerraFX.Interop.Windows.FALSE, TerraFX.Interop.Windows.FALSE, null);
+            _fenceEvent = Kernel32.CreateEvent(null, FALSE, FALSE, null);
             if (_fenceEvent == IntPtr.Zero)
             {
                 DirectXHelper.ThrowIfFailed(Marshal.GetLastWin32Error());
@@ -370,7 +371,7 @@ namespace DirectX12Template.Common
             *ppAdapter = null;
 
             for (uint adapterIndex = 0;
-                TerraFX.Interop.Windows.DXGI_ERROR_NOT_FOUND != _dxgiFactory.Ptr->EnumAdapters1(adapterIndex, adapter.GetAddressOf());
+                DXGI_ERROR_NOT_FOUND != _dxgiFactory.Ptr->EnumAdapters1(adapterIndex, adapter.GetAddressOf());
                 adapterIndex++)
             {
                 DXGI_ADAPTER_DESC1 desc;
@@ -382,7 +383,7 @@ namespace DirectX12Template.Common
                 }
 
                 Guid iid = D3D12.IID_ID3D12Device;
-                if (TerraFX.Interop.Windows.SUCCEEDED(D3D12.D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL.D3D_FEATURE_LEVEL_11_0, &iid, null)))
+                if (SUCCEEDED(D3D12.D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL.D3D_FEATURE_LEVEL_11_0, &iid, null)))
                 {
                     Debug.WriteLine(new string(desc.Description));
                     break;
@@ -427,7 +428,7 @@ namespace DirectX12Template.Common
                 HRESULT hr = _swapChain.Ptr->ResizeBuffers(FrameCount, backBufferWidth, backBufferHeight, _backBufferFormat,
                     0);
 
-                if (hr == TerraFX.Interop.Windows.DXGI_ERROR_DEVICE_REMOVED || hr == TerraFX.Interop.Windows.DXGI_ERROR_DEVICE_RESET)
+                if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
                 {
                     _deviceRemoved = true;
 
@@ -501,8 +502,7 @@ namespace DirectX12Template.Common
 
             {
                 _currentFrame = (int)_swapChain.Ptr->GetCurrentBackBufferIndex();
-                D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor;
-                _rtvHeap.Ptr->GetCPUDescriptorHandleForHeapStart(&rtvDescriptor);
+                D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = _rtvHeap.Ptr->GetCPUDescriptorHandleForHeapStart();
 
                 fixed (void* pBuffer = & _renderTargets)
                 {
@@ -554,8 +554,7 @@ namespace DirectX12Template.Common
                     dsvDesc.Format = _depthBufferFormat;
                     dsvDesc.ViewDimension = D3D12_DSV_DIMENSION.D3D12_DSV_DIMENSION_TEXTURE2D;
                     dsvDesc.Flags = D3D12_DSV_FLAGS.D3D12_DSV_FLAG_NONE;
-                    D3D12_CPU_DESCRIPTOR_HANDLE handle;
-                    _dsvHeap.Ptr->GetCPUDescriptorHandleForHeapStart(&handle);
+                    D3D12_CPU_DESCRIPTOR_HANDLE handle = _dsvHeap.Ptr->GetCPUDescriptorHandleForHeapStart();
                     _d3dDevice.Ptr->CreateDepthStencilView(_depthStencil.Ptr, &dsvDesc, handle);
 
                 }
@@ -715,7 +714,7 @@ namespace DirectX12Template.Common
 
                 if (previousDesc.AdapterLuid.LowPart != currentDesc.AdapterLuid.LowPart ||
                     previousDesc.AdapterLuid.HighPart != currentDesc.AdapterLuid.HighPart ||
-                    TerraFX.Interop.Windows.FAILED(_d3dDevice.Ptr->GetDeviceRemovedReason()))
+                    FAILED(_d3dDevice.Ptr->GetDeviceRemovedReason()))
                 {
                     _deviceRemoved = true;
                 }
@@ -726,7 +725,7 @@ namespace DirectX12Template.Common
         {
             HRESULT hr = _swapChain.Ptr->Present(1, 0);
 
-            if (hr == TerraFX.Interop.Windows.DXGI_ERROR_DEVICE_REMOVED || hr == TerraFX.Interop.Windows.DXGI_ERROR_DEVICE_RESET)
+            if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
             {
                 _deviceRemoved = true;
             }
@@ -744,7 +743,7 @@ namespace DirectX12Template.Common
             DirectXHelper.ThrowIfFailed(_fence.Ptr->SetEventOnCompletion(_fenceValues[_currentFrame], _fenceEvent));
 
             // TODO - proper call is 'WaitForSingleObjectEx(_fenceEvent, INFINITE, FALSE)'
-            Kernel32.WaitForSingleObject(_fenceEvent, TerraFX.Interop.Windows.INFINITE);
+            Kernel32.WaitForSingleObject(_fenceEvent, INFINITE);
 
             _fenceValues[_currentFrame]++;
         }
@@ -763,7 +762,7 @@ namespace DirectX12Template.Common
                 DirectXHelper.ThrowIfFailed(_fence.Ptr->SetEventOnCompletion(_fenceValues[_currentFrame], _fenceEvent));
 
                 // TODO - proper call is 'WaitForSingleObjectEx(_fenceEvent, INFINITE, FALSE)'
-                Kernel32.WaitForSingleObject(_fenceEvent, TerraFX.Interop.Windows.INFINITE);
+                Kernel32.WaitForSingleObject(_fenceEvent, INFINITE);
             }
 
             _fenceValues[_currentFrame] = currentFenceValue + 1;
@@ -796,8 +795,7 @@ namespace DirectX12Template.Common
         {
             get
             {
-                D3D12_CPU_DESCRIPTOR_HANDLE handle;
-                _rtvHeap.Ptr->GetCPUDescriptorHandleForHeapStart(&handle);
+                D3D12_CPU_DESCRIPTOR_HANDLE handle = _rtvHeap.Ptr->GetCPUDescriptorHandleForHeapStart();
                 return CD3DX12_CPU_DESCRIPTOR_HANDLE.Create(handle, _currentFrame, _rtvDescriptorSize);
             }
         }
@@ -806,8 +804,7 @@ namespace DirectX12Template.Common
         {
             get
             {
-                D3D12_CPU_DESCRIPTOR_HANDLE handle;
-                _dsvHeap.Ptr->GetCPUDescriptorHandleForHeapStart(&handle);
+                D3D12_CPU_DESCRIPTOR_HANDLE handle = _dsvHeap.Ptr->GetCPUDescriptorHandleForHeapStart();
                 return handle;
             }
         }
